@@ -86,7 +86,6 @@ fpdf==1.7.2
 python-docx==0.8.12
 requests==2.31.0
 
-
 2. Install with:
 pip install -r requirements.txt
 
@@ -101,8 +100,14 @@ git push -u origin main
 
 # License
 MIT License
-
+Youtube link: https://youtu.be/Q3qg_NglykM
 ## Acknowledgements
 Streamlit
 Google Generative AI (Gemini)
 FPDF & python-docx for document export"# SmartResume-Generator-Model-Picker" 
+
+## 👤 Author
+
+Adhisheshu
+Power BI & Data Analytics Project
+

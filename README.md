@@ -41,7 +41,7 @@ SmartResume-Generator/
 ## Installation
 
 1. **Clone the repository**
-git clone https://github.com/<your-username>/SmartResume-Generator.git
+git clone https://github.com/<your-username>SmartResume-Generator.git
 cd SmartResume-Generator
 
 2. Create and activate virtual environment

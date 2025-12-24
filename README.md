@@ -2,6 +2,7 @@
 
 AI-powered Resume Generator using **Streamlit** + **Google Generative AI (Gemini)**
 
+# Live link: https://njd7s7zadcytdxvafbpvf5.streamlit.app/
 ---
 
 ## Project Overview
@@ -108,6 +109,7 @@ FPDF & python-docx for document export"# SmartResume-Generator-Model-Picker"
 
 ## 👤 Author
 
-Adhisheshu
-Power BI & Data Analytics Project
+Angothu Adhisheshu
+    CSE Student
+Github link :  https://github.com/Adhisheshu1210/
 

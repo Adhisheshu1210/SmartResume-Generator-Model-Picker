@@ -2,7 +2,7 @@
 
 AI-powered Resume Generator using **Streamlit** + **Google Generative AI (Gemini)**
 
-# Live link: https://njd7s7zadcytdxvafbpvf5.streamlit.app/
+Live link: https://njd7s7zadcytdxvafbpvf5.streamlit.app/
 ---
 
 ## Project Overview
@@ -41,10 +41,11 @@ SmartResume-Generator/
 ## Installation
 
 1. **Clone the repository**
-git clone https://github.com/<your-username>SmartResume-Generator.git
+git clone https://github.com/Adhisheshu1210/SmartResume-Generator-Model-Picker.git
+
 cd SmartResume-Generator
 
-2. Create and activate virtual environment
+3. Create and activate virtual environment
 python -m venv venv
 # macOS / Linux
 source venv/bin/activate

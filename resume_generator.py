@@ -1,7 +1,10 @@
 # resume_generator.py
 import os
 import json
-import google.generativeai as genai
+from google import genai
+
+# Global client (to be set by configure_api)
+client = None
 
 # Global model name (to be set by app.py)
 MODEL_NAME = None
@@ -11,12 +14,13 @@ MODEL_NAME = None
 # -------------------------------------------------
 def configure_api(api_key: str = None):
     """
-    Configure the Google Generative AI SDK with your API key.
+    Configure the Google GenAI SDK with your API key.
     """
+    global client
     key = api_key or os.environ.get("GEMINI_API_KEY")
     if not key:
         raise ValueError("GEMINI_API_KEY missing. Set it in secrets or env.")
-    genai.configure(api_key=key)
+    client = genai.Client(api_key=key)
 
 # -------------------------------------------------
 # List models via SDK
@@ -26,14 +30,13 @@ def list_models_via_sdk(page_size: int = 100):
     List models via installed SDK.
     Returns a list of models or raises an error if unsupported.
     """
+    global client
+    if not client:
+        raise RuntimeError("Client not configured. Call configure_api() first.")
     try:
-        if hasattr(genai, "list_models"):
-            return list(genai.list_models(page_size=page_size))
-        if hasattr(genai, "models") and hasattr(genai.models, "list"):
-            return genai.models.list(page_size=page_size)
+        return list(client.models.list())
     except Exception as e:
         raise RuntimeError(f"SDK list_models() failed: {e}")
-    raise RuntimeError("list_models not available in this genai SDK")
 
 # -------------------------------------------------
 # List models via REST
@@ -111,6 +114,9 @@ def set_model_name(name: str):
 # Generate content
 # -------------------------------------------------
 def generate_with_model(prompt: str) -> str:
+    global client
+    if not client:
+        raise RuntimeError("Client not configured. Call configure_api() first.")
     if not MODEL_NAME:
         raise RuntimeError("MODEL_NAME is not set. Call set_model_name() first.")
 
@@ -118,11 +124,7 @@ def generate_with_model(prompt: str) -> str:
         raise RuntimeError(f"Invalid model for generation: {MODEL_NAME}")
 
     try:
-        model = genai.GenerativeModel(MODEL_NAME)
-        try:
-            response = model.generate_content(prompt)
-        except TypeError:
-            response = model.generate_content(contents=prompt)
+        response = client.models.generate_content(model=MODEL_NAME, contents=prompt)
     except Exception as e:
         raise RuntimeError(f"Model generation error: {e}")
 

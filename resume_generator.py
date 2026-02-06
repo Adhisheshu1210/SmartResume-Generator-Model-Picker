@@ -114,90 +114,75 @@ def set_model_name(name: str):
 # Generate content
 # -------------------------------------------------
 def generate_with_model(prompt: str) -> str:
-    global client
+    """
+    Generate resume content using the configured model.
+    """
+    global client, MODEL_NAME
     if not client:
         raise RuntimeError("Client not configured. Call configure_api() first.")
     if not MODEL_NAME:
-        raise RuntimeError("MODEL_NAME is not set. Call set_model_name() first.")
-
-    if any(x in MODEL_NAME.lower() for x in ["embedding", "vision", "audio"]):
-        raise RuntimeError(f"Invalid model for generation: {MODEL_NAME}")
-
+        raise RuntimeError("Model not set. Call set_model_name() first.")
+    
     try:
-        response = client.models.generate_content(model=MODEL_NAME, contents=prompt)
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt
+        )
+        return response.text
     except Exception as e:
-        raise RuntimeError(f"Model generation error: {e}")
-
-    # Extract text
-    if hasattr(response, "text") and response.text:
-        return response.text.strip()
-
-    try:
-        for cand in getattr(response, "candidates", []):
-            content = getattr(cand, "content", [])
-            for part in content:
-                text = getattr(part, "text", None) or (part.get("text") if isinstance(part, dict) else None)
-                if text:
-                    return text.strip()
-    except Exception:
-        pass
-
-    return str(response).strip()
-
-# -------------------------------------------------
-# Cleanup model placeholders
-# -------------------------------------------------
-def clean_resume_text(text: str) -> str:
-    if not text:
-        return ""
-    return (text.replace("[Add Email Address]", "")
-                .replace("[Add Phone Number]", "")
-                .replace("[Add LinkedIn Profile URL (optional)]", "")
-                .replace("[Add GitHub URL (optional)]", "")
-                .strip())
+        raise RuntimeError(f"Generation failed: {e}")
 
 # -------------------------------------------------
 # Build resume prompt
 # -------------------------------------------------
-def build_resume_prompt(user, style="professional", industry="General"):
+def build_resume_prompt(user: dict, style: str = "professional", industry: str = "General") -> str:
     """
-    Build a structured prompt for Gemini to generate resume content.
+    Build a prompt for resume generation based on user data.
     """
-    return f"""
-You are an expert resume writer skilled in ATS-friendly formatting.
-Write a polished, well-structured resume based on the details below.
+    prompt = f"""
+You are an expert resume writer. Create a {style} resume for the {industry} industry.
 
---- Personal Details ---
-Name: {user.get("name", "")}
-Job Title: {user.get("job_title", "")}
-Email: {user.get("email", "")}
-Phone: {user.get("phone", "")}
-LinkedIn: {user.get("linkedin", "")}
-GitHub: {user.get("github", "")}
+**Personal Information:**
+- Name: {user.get('name', 'N/A')}
+- Job Title: {user.get('job_title', 'N/A')}
+- Email: {user.get('email', 'N/A')}
+- Phone: {user.get('phone', 'N/A')}
+- LinkedIn: {user.get('linkedin', 'N/A')}
+- GitHub: {user.get('github', 'N/A')}
 
---- Professional Summary ---
-{user.get("summary", "")}
+**Professional Summary:**
+{user.get('summary', 'Write a compelling professional summary highlighting key achievements and skills.')}
 
---- Skills ---
-{user.get("skills", "")}
+**Skills:**
+{user.get('skills', 'List relevant technical and soft skills.')}
 
---- Experience ---
-{user.get("experience", "")}
+**Experience:**
+{user.get('experience', 'List work experience with company, role, duration, and key achievements.')}
 
---- Projects ---
-{user.get("projects", "")}
+**Projects:**
+{user.get('projects', 'List significant projects with descriptions and technologies used.')}
 
---- Education ---
-{user.get("education", "")}
+**Education:**
+{user.get('education', 'List educational qualifications.')}
 
---- Requirements ---
-• Resume style: {style}
-• Industry focus: {industry}
-• Format with neat bullet-points
-• Include strong action verbs and measurable achievements
-• Do NOT add placeholders
-• Output only resume content
-• Start with candidate's name as heading
+Format the resume professionally with clear sections and bullet points. 
+Make it ATS-friendly if style is 'ats'. Make it visually appealing if style is 'creative'.
+"""
+    return prompt
 
-Generate only resume content. No explanations.
-""".strip()
+# -------------------------------------------------
+# Clean resume text
+# -------------------------------------------------
+def clean_resume_text(text: str) -> str:
+    """
+    Clean and format the generated resume text.
+    """
+    # Remove markdown formatting that might interfere with output
+    text = text.replace("```", "")
+    text = text.replace("**", "")
+    
+    # Clean up extra whitespace
+    lines = [line.strip() for line in text.splitlines()]
+    text = "\n".join(line for line in lines if line)
+    
+    return text
